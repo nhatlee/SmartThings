@@ -1,19 +1,13 @@
 import Vapor
-import FluentSQLite
+import FluentPostgreSQL
 
-final class Sensor: Codable {
-    var id: Int?
+final class Sensor: Content {
+    var id: UUID?
     var value: String
     init(value: String) {
         self.value = value
     }
 }
 
-extension Sensor: SQLiteModel {}
-
-//Migration protocol is that this protocol is used to create a table for the model in the database
+extension Sensor: PostgreSQLUUIDModel {}
 extension Sensor: Migration {}
-
-extension Sensor: Content {}
-
-extension Sensor: Parameter {}

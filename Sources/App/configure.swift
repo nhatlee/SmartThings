@@ -1,10 +1,14 @@
-import FluentSQLite
+import FluentPostgreSQL
 import Vapor
+import Redis
 
 /// Called before your application initializes.
 public func configure(_ config: inout Config, _ env: inout Environment, _ services: inout Services) throws {
+    
+//    try services.register(RedisProvider())
+    
     // Register providers first
-    try services.register(FluentSQLiteProvider())
+    try services.register(FluentPostgreSQLProvider())
 
     // Register routes to the router
     let router = EngineRouter.default()
@@ -17,16 +21,15 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     middlewares.use(ErrorMiddleware.self) // Catches errors and converts to HTTP response
     services.register(middlewares)
 
-    // Configure a SQLite database
-    let sqlite = try SQLiteDatabase(storage: .memory)
 
     // Register the configured SQLite database to the database config.
     var databases = DatabasesConfig()
-    databases.add(database: sqlite, as: .sqlite)
+    let config = PostgreSQLDatabaseConfig(hostname: "localhost", username: "nhatle", database: "smartthings")
+    databases.add(database: PostgreSQLDatabase(config: config), as: .psql)
     services.register(databases)
 
     // Configure migrations
     var migrations = MigrationConfig()
-    migrations.add(model: Sensor.self, database: .sqlite)
+    migrations.add(model: Sensor.self, database: .psql)
     services.register(migrations)
 }

@@ -2,16 +2,14 @@ import Vapor
 
 /// Register your application's routes here.
 public func routes(_ router: Router) throws {
-    // Basic "It works" example
-//    router.get { req in
-//        return "It works!"
-//    }
-//
-//    // Basic "Hello, world!" example
-//    router.get("hello") { req in
-//        return "Hello, world!"
-//    }
     let usersController = SensorController()
-//    try router.register(collection: usersController)
     try usersController.boot(router: router)
+    
+    router.get("redis") { req -> Future<String> in
+        return req.withNewConnection(to: .redis) { redis in
+            return redis.command("INFO")
+                // map the resulting RedisData to a String
+                .map { $0.string ?? "" }
+        }
+    }
 }
